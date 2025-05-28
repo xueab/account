@@ -19,9 +19,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 public class MainActivity extends AppCompatActivity {
-
+    // 用户头像按钮
     private ImageButton btnUserProfile;
+    // 底部导航栏
     private BottomNavigationView bottomNavigationView;
+    // 首页 统计页面
     private Fragment homeFragment, statsFragment;
 
     @Override
@@ -42,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupListeners() {
         // 用户头像点击事件
         btnUserProfile.setOnClickListener(v -> {
+            // 当用户点击头像按钮时，启动 UserProfileActivity 活动
             Intent intent = new Intent(this, UserProfileActivity.class);
             startActivity(intent);
         });
@@ -49,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void initView(){
+        // 初始化用户头像按钮
         btnUserProfile = findViewById(R.id.btn_user_profile);
         initFragments();
     }
@@ -61,24 +65,32 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
         // 设置中间加号按钮的样式
+        // 获取加号按钮的菜单项
         MenuItem addItem = bottomNavigationView.getMenu().findItem(R.id.nav_add);
+        // 创建可变字符串并设置样式
         SpannableStringBuilder addTitle = new SpannableStringBuilder(addItem.getTitle());
         addTitle.setSpan(new RelativeSizeSpan(1.5f), 0, addTitle.length(), 0);
+        // 更新加号按钮的标题
         addItem.setTitle(addTitle);
 
+        // 设置底部导航栏的点击事件监听器
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            // 根据 ID 判断点击的是哪个按钮，并执行相应的操作
             int id = item.getItemId();
+            // 点击首页按钮
             if (id == R.id.nav_home) {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.container, homeFragment)
                         .commit();
                 return true;
             } else if (id == R.id.nav_stats) {
+                // 点击统计按钮
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.container, statsFragment)
                         .commit();
                 return true;
             } else if (id == R.id.nav_add) {
+                // 点击加号按钮
                 startActivity(new Intent(this, AddRecordActivity.class));
                 return true;
             }

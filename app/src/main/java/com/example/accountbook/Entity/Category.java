@@ -2,14 +2,15 @@ package com.example.accountbook.Entity;
 
 import java.util.Date;
 
+// 分类
 public class Category {
     public static final int TYPE_EXPENSE = 0;  // 支出类型
     public static final int TYPE_INCOME = 1;   // 收入类型
 
     private int id;
-    private String name;
+    private String name;   // 分类名称
     private int type;  // 0:支出, 1:收入
-    private String icon;
+    private String icon;   // icon 资源名
     private int userId;
     private Date createTime;
     private Date updateTime;
