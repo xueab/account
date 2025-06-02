@@ -55,6 +55,7 @@
                 android:value=".MainActivity" />
         </activity>
         <service android:name=".Service.OCRProcessingService" />
-
+        <activity android:name=".activity.CategorySelectionActivity" />
     </application>
+
 </manifest>
