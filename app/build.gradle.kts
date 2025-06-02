@@ -46,4 +46,5 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    implementation("com.aliyun:ocr_api20210707:3.1.3")
 }

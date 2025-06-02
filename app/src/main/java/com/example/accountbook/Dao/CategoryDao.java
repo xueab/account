@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.example.accountbook.Entity.Category;
+
 public class CategoryDao {
     private DatabaseHelper dbHelper;
 
@@ -37,6 +39,18 @@ public class CategoryDao {
         return db.query("category", null, "user_id=? AND type=?",
                 new String[]{String.valueOf(userId), String.valueOf(type)},
                 null, null, "name ASC");
+    }
+
+    //获取指定类别id的代码
+    public Cursor getCategoryCursorById(long categoryId) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        return db.query(
+                "category",
+                null,
+                "id=?",
+                new String[]{String.valueOf(categoryId)},
+                null, null, null
+        );
     }
 
     // 更新类别

@@ -1,5 +1,6 @@
 package com.example.accountbook.Dao;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -28,8 +29,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     "icon TEXT," +
                     "user_id INTEGER NOT NULL," +
                     "create_time TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP," +
-                    "update_time TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP," +
-                    "FOREIGN KEY (user_id) REFERENCES user_info(id)" +
+                    "update_time TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP" +
+//                    "FOREIGN KEY (user_id) REFERENCES user_info(id)" +
                     ");";
 
     // 记录表创建SQL
@@ -45,8 +46,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     "user_id INTEGER NOT NULL," +
                     "create_time TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP," +
                     "update_time TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP," +
-                    "FOREIGN KEY (category_id) REFERENCES category(id)," +
-                    "FOREIGN KEY (user_id) REFERENCES user_info(id)" +
+                    "FOREIGN KEY (category_id) REFERENCES category(id)" +
+//                    "FOREIGN KEY (user_id) REFERENCES user_info(id)" +
                     ");";
 
     // 创建索引SQL
@@ -74,7 +75,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_RECORD_USER_INDEX);
         db.execSQL(CREATE_RECORD_DATE_INDEX);
         db.execSQL(CREATE_CATEGORY_USER_INDEX);
-        Toast.makeText(context,"创建成功",Toast.LENGTH_LONG).show();
+
+        ContentValues values = new ContentValues();
+        values.put("name", "吃饭");
+        values.put("type", 0); // 0表示支出
+        values.put("icon", "food"); // 默认图标
+        values.put("user_id", 1);
+        long newRowId = db.insert("category", null, values);
+
+        values.clear();
+        values.put("amount", 50.00);
+        values.put("type", 0); // 支出
+        values.put("category_id", newRowId);
+        values.put("remark", "午餐");
+        values.put("date", "2025-06-02");
+        values.put("user_id", 1);
+        db.insert("record", null, values);
     }
 
     @Override

@@ -7,7 +7,7 @@
     <RelativeLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="80dp"
         android:background="?attr/colorPrimary"
         android:paddingHorizontal="16dp">
         <TextView
@@ -24,7 +24,8 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="5dp"
             android:background="@drawable/circle_white"
             android:padding="8dp"
             android:scaleType="centerCrop"

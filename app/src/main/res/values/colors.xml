@@ -11,4 +11,15 @@
     <color name="bottom_nav_colors">#563885</color>
     <color name="green">#0AC30A</color>
     <color name="red">#E40D0D</color>
+
+    <color name="colorExpense">#F44336</color>
+    <color name="colorIncome">#4CAF50</color>
+    <color name="gray_light">#BDBDBD</color>
+    <color name="gray_medium">#757575</color>
+    <color name="colorSurface">#FFFBFE</color>
+    <color name="colorSurfaceVariant">#E7E0EC</color>
+
+    <color name="dark_surface_container">#DEBA47</color>
+    <color name="date_picker_unselected_bg">#F5F5F5</color>
+    <color name="date_picker_unselected_text">#616161</color>
 </resources>
