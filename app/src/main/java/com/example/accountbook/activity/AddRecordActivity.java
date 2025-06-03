@@ -89,7 +89,6 @@ public class AddRecordActivity extends AppCompatActivity {
 
     private void setupCategoryData() {
         // TODO 查询数据库
-
         // 模拟支出分类数据
         expenseCategories.add(new Category("餐饮", Category.TYPE_EXPENSE, "ic_food", 1));
         expenseCategories.add(new Category("交通", Category.TYPE_EXPENSE, "ic_traffic", 1));

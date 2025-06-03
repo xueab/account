@@ -8,7 +8,7 @@
     <!-- 顶部标题栏 -->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="80dp"
         android:background="?attr/colorPrimary"
         android:paddingHorizontal="16dp">
 
@@ -19,6 +19,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="15dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_back"
             app:tint="@android:color/white" />
@@ -29,6 +31,8 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="添加记录"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="15dp"
             android:textColor="@android:color/white"
             android:textSize="18sp"
             android:textStyle="bold" />

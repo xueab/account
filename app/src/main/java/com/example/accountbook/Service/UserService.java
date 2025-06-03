@@ -124,4 +124,31 @@ public class UserService {
 
         return Hex.toHexString(hash);
     }
+
+    /**
+     * 修改密码逻辑
+     * @param phone 手机号
+     * @param newPassword 新密码(明文)
+     * @return 修改是否成功
+     */
+    public boolean changePassword(String phone, String newPassword) {
+        // 1. 检查手机号格式
+        if (phone.length() != 11) {
+            Toast.makeText(context, "账号格式不合规", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        // 2. 检查手机号是否已注册
+        User user = userDao.getUserByPhone(phone);
+        if (user == null) {
+            Toast.makeText(context, "该手机号未注册", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        // 3. SM3加密新密码
+        String encryptedPassword = sm3Hash(newPassword);
+
+        // 4. 更新数据库中的密码
+        return userDao.updatePassword(phone, encryptedPassword) == 1;
+    }
 }

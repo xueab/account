@@ -6,6 +6,7 @@ public class User {
     private int id;
     private String phone;
     private String password;
+    private String avatar; // 新增头像字段
     private Date createTime;
     private Date updateTime;
 
@@ -42,6 +43,14 @@ public class User {
         this.password = password;
     }
 
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
     public Date getCreateTime() {
         return createTime;
     }
@@ -64,6 +73,7 @@ public class User {
                 "id=" + id +
                 ", phone='" + phone + '\'' +
                 ", password='" + password + '\'' +
+                ", avatar='" + avatar + '\'' +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
                 '}';

@@ -16,6 +16,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                     "phone TEXT UNIQUE NOT NULL," +
                     "password TEXT NOT NULL," +
+                    "avatar TEXT," +
                     "create_time TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP," +
                     "update_time TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP" +
                     ");";

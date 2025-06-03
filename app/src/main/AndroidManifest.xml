@@ -17,6 +17,9 @@
     <uses-permission android:name="android.permission.READ_SMS"/>
     <!-- 读邮件内容 -->
     <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+    <!-- 读写文件 -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -55,7 +58,7 @@
                 android:value=".MainActivity" />
         </activity>
         <service android:name=".Service.OCRProcessingService" />
-        <activity android:name=".activity.CategorySelectionActivity" />
+        <activity android:name=".activity.ChangePasswordActivity" />
     </application>
 
 </manifest>

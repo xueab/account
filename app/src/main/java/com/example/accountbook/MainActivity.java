@@ -2,12 +2,19 @@ package com.example.accountbook;
 
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.SpannableStringBuilder;
 import android.text.style.RelativeSizeSpan;
 import android.view.MenuItem;
 import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.accountbook.Dao.UserDao;
+import com.example.accountbook.Entity.User;
 import com.example.accountbook.activity.AddRecordActivity;
 import com.example.accountbook.activity.LoginActivity;
 import com.example.accountbook.activity.UserProfileActivity;
@@ -15,17 +22,27 @@ import com.example.accountbook.fragment.HomeFragment;
 import com.example.accountbook.fragment.StatsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Objects;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
     // 用户头像按钮
-    private ImageButton btnUserProfile;
+    private CircleImageView btnUserProfile;
+    //顶部标题
+    private TextView tvTitle;
     // 底部导航栏
     private BottomNavigationView bottomNavigationView;
-    // 首页 统计页面
+    // 首页统计页面
     private Fragment homeFragment, statsFragment;
-
+    //用户id
+    private Long userId;
+    private UserDao userDao;
+    private User user;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,18 +50,75 @@ public class MainActivity extends AppCompatActivity {
         initView();
         setupBottomNavigation();
         setupListeners();
-
+        userId = getIntent().getLongExtra("USER_ID",-1);
+        userDao = new UserDao(this);
+        if(userId == -1){
+            Toast.makeText(this,"用户信息不存在",Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
         // 默认显示首页
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, homeFragment)
                 .commit();
+        tvTitle.setText("首页");
+        //获取用户
+        user = userDao.getUserById(userId);
+        //加载用户头像
+        loadUserAvatar(user.getAvatar());
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // 当Activity从后台返回前台时，重新加载用户头像
+        if (userId != -1) {
+            user = userDao.getUserById(userId); // 重新获取用户数据
+            loadUserAvatar(user.getAvatar());   // 重新加载头像
+        }
+    }
+
+    private void loadUserAvatar(String avatarUri) {
+        // 检查URI是否有效
+        if (avatarUri == null || avatarUri.isEmpty()) {
+            btnUserProfile.setImageResource(R.drawable.ic_default_avatar);
+            return;
+        }
+
+        // 处理文件路径的情况
+        if (avatarUri.startsWith("/")) {
+            // 本地文件路径
+            File file = new File(avatarUri);
+            if (file.exists()) {
+                btnUserProfile.setImageURI(Uri.fromFile(file));
+                return;
+            }
+        }
+
+        // 处理content://或file:// URI
+        if (avatarUri.startsWith("content://") || avatarUri.startsWith("file://")) {
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(
+                        getContentResolver(),
+                        Uri.parse(avatarUri)
+                );
+                btnUserProfile.setImageBitmap(bitmap);
+                return;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // 默认情况
+        btnUserProfile.setImageResource(R.drawable.ic_default_avatar);
+    }
     private void setupListeners() {
         // 用户头像点击事件
         btnUserProfile.setOnClickListener(v -> {
-            // 当用户点击头像按钮时，启动 UserProfileActivity 活动
+            // 当用户点击头像按钮时，启动 UserProfileActivity 活动,并传递用户id
             Intent intent = new Intent(this, UserProfileActivity.class);
+            intent.putExtra("USER_ID", userId);
             startActivity(intent);
         });
     }
@@ -53,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
     private void initView(){
         // 初始化用户头像按钮
         btnUserProfile = findViewById(R.id.btn_user_profile);
+        tvTitle = findViewById(R.id.tv_title);
         initFragments();
     }
     private void initFragments() {
@@ -81,12 +156,14 @@ public class MainActivity extends AppCompatActivity {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.container, homeFragment)
                         .commit();
+                tvTitle.setText("首页");
                 return true;
             } else if (id == R.id.nav_stats) {
                 // 点击统计按钮
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.container, statsFragment)
                         .commit();
+                tvTitle.setText("统计");
                 return true;
             } else if (id == R.id.nav_add) {
                 // 点击加号按钮

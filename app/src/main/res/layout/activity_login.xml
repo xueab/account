@@ -12,6 +12,7 @@
         android:text="记账App"
         android:textSize="24sp"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30dp"
         android:layout_marginBottom="30dp"/>
 
     <TextView
