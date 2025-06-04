@@ -50,9 +50,9 @@ public class OCRService {
     // 初始化OCR客户端
     private Client createClient() throws Exception {
         try {
-            Config config = new Config()
-                    .setAccessKeyId("")
-                    .setAccessKeySecret("");
+            Config config = new Config();
+//                    .setAccessKeyId("")
+//                    .setAccessKeySecret("");
             config.endpoint = "ocr-api.cn-hangzhou.aliyuncs.com";
             return new Client(config);
         } catch (Exception e) {
