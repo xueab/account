@@ -10,11 +10,11 @@ public class Record {
     private int id;
     private double amount;
     private int type;  // 0:支出, 1:收入
-    private int categoryId;
+    private long categoryId;
     private String remark;
     private String date;  // 格式: yyyy-MM-dd
-    private Date time;
-    private int userId;
+    private String time;
+    private long userId;
     private Date createTime;
     private Date updateTime;
 
@@ -25,7 +25,7 @@ public class Record {
     public Record() {
     }
 
-    public Record(double amount, int type, int categoryId, String remark, String date, int userId) {
+    public Record(double amount, int type, int categoryId, String remark, String date, long userId) {
         this.amount = amount;
         this.type = type;
         this.categoryId = categoryId;
@@ -59,11 +59,11 @@ public class Record {
         this.type = type;
     }
 
-    public int getCategoryId() {
+    public long getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(int categoryId) {
+    public void setCategoryId(long categoryId) {
         this.categoryId = categoryId;
     }
 
@@ -83,19 +83,19 @@ public class Record {
         this.date = date;
     }
 
-    public Date getTime() {
+    public String getTime() {
         return time;
     }
 
-    public void setTime(Date time) {
+    public void setTime(String time) {
         this.time = time;
     }
 
-    public int getUserId() {
+    public long getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(long userId) {
         this.userId = userId;
     }
 

@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
@@ -23,6 +24,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.accountbook.Dao.CategoryDao;
+import com.example.accountbook.Dao.RecordDao;
 import com.example.accountbook.Entity.Category;
 import com.example.accountbook.Entity.Record;
 import com.example.accountbook.R;
@@ -44,13 +47,17 @@ public class AddRecordActivity extends AppCompatActivity {
     private TextView btnSelectPhoto;
     private Button btnTime;
     // 分类按钮
-    private ImageView btnFood, btnTransport, btnDaily, btnSnack;
+    private ImageView btn1, btn2, btn3, btn4;
     // 当前选中的分类列表
     private Category selectedCategory;
     // 支出分类列表
     private List<Category> expenseCategories = new ArrayList<>();
     // 收入分类列表
     private List<Category> incomeCategories = new ArrayList<>();
+    // 分类数据访问对象
+    private CategoryDao categoryDao;
+    private RecordDao recordDao;
+    private long userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +66,10 @@ public class AddRecordActivity extends AppCompatActivity {
 
         // 初始化
         initViews();
+        // 初始化CategoryDao
+        categoryDao = new CategoryDao(this);
+        recordDao = new RecordDao(this);
+        userId = getIntent().getLongExtra("USER_ID",-1);
         // 初始化数据
         setupCategoryData();
         setupListeners();
@@ -76,10 +87,10 @@ public class AddRecordActivity extends AppCompatActivity {
         btnTime = findViewById(R.id.btn_time);
 
         // 分类按钮
-        btnFood = findViewById(R.id.btn_food);
-        btnTransport = findViewById(R.id.btn_transport);
-        btnDaily = findViewById(R.id.btn_daily);
-        btnSnack = findViewById(R.id.btn_snack);
+        btn1 = findViewById(R.id.btn_1);
+        btn2 = findViewById(R.id.btn_2);
+        btn3 = findViewById(R.id.btn_3);
+        btn4 = findViewById(R.id.btn_4);
 
         // 设置默认时间
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
@@ -88,23 +99,50 @@ public class AddRecordActivity extends AppCompatActivity {
     }
 
     private void setupCategoryData() {
-        // TODO 查询数据库
-        // 模拟支出分类数据
-        expenseCategories.add(new Category("餐饮", Category.TYPE_EXPENSE, "ic_food", 1));
-        expenseCategories.add(new Category("交通", Category.TYPE_EXPENSE, "ic_traffic", 1));
-        expenseCategories.add(new Category("日用", Category.TYPE_EXPENSE, "ic_dailyuse", 1));
-        expenseCategories.add(new Category("零食", Category.TYPE_EXPENSE, "ic_snacks", 1));
-        expenseCategories.add(new Category("娱乐", Category.TYPE_EXPENSE, "ic_game", 1));
+        // 从数据库获取支出分类
+        Cursor expenseCursor = categoryDao.getCategoriesByType(Category.TYPE_EXPENSE);
+        if (expenseCursor != null) {
+            while (expenseCursor.moveToNext()) {
+                long id = expenseCursor.getLong(expenseCursor.getColumnIndexOrThrow("id"));
+                String name = expenseCursor.getString(expenseCursor.getColumnIndexOrThrow("name"));
+                String icon = expenseCursor.getString(expenseCursor.getColumnIndexOrThrow("icon"));
+                expenseCategories.add(new Category(id, name, Category.TYPE_EXPENSE, icon));
+            }
+            expenseCursor.close();
+        }
 
-        // 模拟收入分类数据
-        incomeCategories.add(new Category("工资", Category.TYPE_INCOME, "ic_salary", 1));
-        incomeCategories.add(new Category("奖金", Category.TYPE_INCOME, "ic_bonus", 1));
-        incomeCategories.add(new Category("投资", Category.TYPE_INCOME, "ic_investment", 1));
-        incomeCategories.add(new Category("其他", Category.TYPE_INCOME, "ic_finance", 1));
+        // 从数据库获取收入分类
+        Cursor incomeCursor = categoryDao.getCategoriesByType(Category.TYPE_INCOME);
+        if (incomeCursor != null) {
+            while (incomeCursor.moveToNext()) {
+                long id = incomeCursor.getLong(incomeCursor.getColumnIndexOrThrow("id"));
+                String name = incomeCursor.getString(incomeCursor.getColumnIndexOrThrow("name"));
+                String icon = incomeCursor.getString(incomeCursor.getColumnIndexOrThrow("icon"));
+                incomeCategories.add(new Category(id, name, Category.TYPE_INCOME, icon));
+            }
+            incomeCursor.close();
+        }
+
+        // 如果没有数据，添加默认分类
+        if (expenseCategories.isEmpty()) {
+            expenseCategories.add(new Category(1, "餐饮", Category.TYPE_EXPENSE, "ic_food"));
+            expenseCategories.add(new Category(2, "交通", Category.TYPE_EXPENSE, "ic_traffic"));
+            expenseCategories.add(new Category(3, "日用", Category.TYPE_EXPENSE, "ic_dailyuse"));
+            expenseCategories.add(new Category(4, "零食", Category.TYPE_EXPENSE, "ic_snacks"));
+        }
+
+        if (incomeCategories.isEmpty()) {
+            incomeCategories.add(new Category(5, "工资", Category.TYPE_INCOME, "ic_salary"));
+            incomeCategories.add(new Category(6, "奖金", Category.TYPE_INCOME, "ic_bonus"));
+            incomeCategories.add(new Category(7, "投资", Category.TYPE_INCOME, "ic_investment"));
+        }
 
         // 默认选中第一个支出分类
-        selectedCategory = expenseCategories.get(0);
-        btnFood.setSelected(true);
+        if (!expenseCategories.isEmpty()) {
+            selectedCategory = expenseCategories.get(0);
+            btn1.setSelected(true);
+            updateCategoryUI();
+        }
     }
 
     private void setupListeners() {
@@ -128,21 +166,21 @@ public class AddRecordActivity extends AppCompatActivity {
             boolean isExpense = rgRecordType.getCheckedRadioButtonId() == R.id.rb_expense;
             List<Category> currentCategories = isExpense ? expenseCategories : incomeCategories;
 
-            if (v == btnFood) {
+            if (v == btn1 && !currentCategories.isEmpty()) {
                 selectedCategory = currentCategories.get(0);
-            } else if (v == btnTransport) {
+            } else if (v == btn2 && currentCategories.size() > 1) {
                 selectedCategory = currentCategories.get(1);
-            } else if (v == btnDaily) {
+            } else if (v == btn3 && currentCategories.size() > 2) {
                 selectedCategory = currentCategories.get(2);
-            } else if (v == btnSnack) {
+            } else if (v == btn4 && currentCategories.size() > 3) {
                 selectedCategory = currentCategories.get(3);
             }
         };
 
-        btnFood.setOnClickListener(categoryListener);
-        btnTransport.setOnClickListener(categoryListener);
-        btnDaily.setOnClickListener(categoryListener);
-        btnSnack.setOnClickListener(categoryListener);
+        btn1.setOnClickListener(categoryListener);
+        btn2.setOnClickListener(categoryListener);
+        btn3.setOnClickListener(categoryListener);
+        btn4.setOnClickListener(categoryListener);
 
         // 更多分类
         btnMoreCategories.setOnClickListener(v -> showMoreCategoriesDialog());
@@ -163,10 +201,10 @@ public class AddRecordActivity extends AppCompatActivity {
 
     // 重置按钮状态
     private void resetCategoryButtons() {
-        btnFood.setSelected(false);
-        btnTransport.setSelected(false);
-        btnDaily.setSelected(false);
-        btnSnack.setSelected(false);
+        btn1.setSelected(false);
+        btn2.setSelected(false);
+        btn3.setSelected(false);
+        btn4.setSelected(false);
     }
 
     private void updateCategorySelection(Category category) {
@@ -174,46 +212,63 @@ public class AddRecordActivity extends AppCompatActivity {
         resetCategoryButtons();
 
         if (category.getName().equals("饮食")) {
-            btnFood.setSelected(true);
+            btn1.setSelected(true);
         } else if (category.getName().equals("出行")) {
-            btnTransport.setSelected(true);
+            btn2.setSelected(true);
         } else if (category.getName().equals("日用")) {
-            btnDaily.setSelected(true);
+            btn3.setSelected(true);
         } else if (category.getName().equals("零食")) {
-            btnSnack.setSelected(true);
+            btn4.setSelected(true);
         }
     }
 
+    //更改图标UI
     private void updateCategoryUI() {
-        boolean isExpense = selectedCategory.getType() == Category.TYPE_EXPENSE;
+        boolean isExpense = rgRecordType.getCheckedRadioButtonId() == R.id.rb_expense;
         List<Category> currentCategories = isExpense ? expenseCategories : incomeCategories;
 
-        // 更新前4个分类按钮的显示
+        // 获取所有分类按钮的父布局
+        ViewGroup btn1Parent = (ViewGroup) btn1.getParent();
+        ViewGroup btn2Parent = (ViewGroup) btn2.getParent();
+        ViewGroup btn3Parent = (ViewGroup) btn3.getParent();
+        ViewGroup btn4Parent = (ViewGroup) btn4.getParent();
+
+        // 默认隐藏所有分类按钮
+        btn1Parent.setVisibility(View.GONE);
+        btn2Parent.setVisibility(View.GONE);
+        btn3Parent.setVisibility(View.GONE);
+        btn4Parent.setVisibility(View.GONE);
+
+        // 根据分类数量显示对应的按钮
         if (currentCategories.size() > 0) {
-            btnFood.setImageResource(getResources().getIdentifier(
+            btn1Parent.setVisibility(View.VISIBLE);
+            btn1.setImageResource(getResources().getIdentifier(
                     currentCategories.get(0).getIcon(), "drawable", getPackageName()));
-            ((TextView) ((ViewGroup) btnFood.getParent()).getChildAt(1))
+            ((TextView) btn1Parent.getChildAt(1))
                     .setText(currentCategories.get(0).getName());
         }
 
         if (currentCategories.size() > 1) {
-            btnTransport.setImageResource(getResources().getIdentifier(
+            btn2Parent.setVisibility(View.VISIBLE);
+            btn2.setImageResource(getResources().getIdentifier(
                     currentCategories.get(1).getIcon(), "drawable", getPackageName()));
-            ((TextView) ((ViewGroup) btnTransport.getParent()).getChildAt(1))
+            ((TextView) btn2Parent.getChildAt(1))
                     .setText(currentCategories.get(1).getName());
         }
 
         if (currentCategories.size() > 2) {
-            btnDaily.setImageResource(getResources().getIdentifier(
+            btn3Parent.setVisibility(View.VISIBLE);
+            btn3.setImageResource(getResources().getIdentifier(
                     currentCategories.get(2).getIcon(), "drawable", getPackageName()));
-            ((TextView) ((ViewGroup) btnDaily.getParent()).getChildAt(1))
+            ((TextView) btn3Parent.getChildAt(1))
                     .setText(currentCategories.get(2).getName());
         }
 
         if (currentCategories.size() > 3) {
-            btnSnack.setImageResource(getResources().getIdentifier(
+            btn4Parent.setVisibility(View.VISIBLE);
+            btn4.setImageResource(getResources().getIdentifier(
                     currentCategories.get(3).getIcon(), "drawable", getPackageName()));
-            ((TextView) ((ViewGroup) btnSnack.getParent()).getChildAt(1))
+            ((TextView) btn4Parent.getChildAt(1))
                     .setText(currentCategories.get(3).getName());
         }
 
@@ -221,8 +276,13 @@ public class AddRecordActivity extends AppCompatActivity {
         resetCategoryButtons();
 
         // 高亮第一个分类按钮
-        btnFood.setSelected(true);
-        selectedCategory = currentCategories.get(0);
+        if (!currentCategories.isEmpty()) {
+            btn1.setSelected(true);
+            selectedCategory = currentCategories.get(0);
+        }
+
+        // 如果分类数量小于等于4，隐藏"更多"按钮
+        btnMoreCategories.setVisibility(currentCategories.size() > 4 ? View.VISIBLE : View.GONE);
     }
 
     // 图标选择
@@ -284,16 +344,16 @@ public class AddRecordActivity extends AppCompatActivity {
 
     private void updateFirstCategoryIcon(Category selectedCategory) {
         // 更新第一个分类按钮的图标和文本
-        btnFood.setImageResource(getResources().getIdentifier(
+        btn1.setImageResource(getResources().getIdentifier(
                 selectedCategory.getIcon(), "drawable", getPackageName()));
-        ((TextView) ((ViewGroup) btnFood.getParent()).getChildAt(1))
+        ((TextView) ((ViewGroup) btn1.getParent()).getChildAt(1))
                 .setText(selectedCategory.getName());
 
         // 重置所有按钮的选中状态
         resetCategoryButtons();
 
         // 高亮第一个分类按钮
-        btnFood.setSelected(true);
+        btn1.setSelected(true);
 
         // 更新当前选中的分类
         this.selectedCategory = selectedCategory;
@@ -303,12 +363,22 @@ public class AddRecordActivity extends AppCompatActivity {
     private void showDateTimePicker() {
         Calendar calendar = Calendar.getInstance();
         new DatePickerDialog(this, (view, year, month, day) -> {
+            // 保存日期部分
+            String selectedDate = String.format(Locale.getDefault(),
+                    "%d-%02d-%02d", year, month + 1, day);
+
             new TimePickerDialog(this, (timeView, hour, minute) -> {
-                String dateTime = String.format(Locale.getDefault(),
-                        "%d-%02d-%02d %02d:%02d", year, month+1, day, hour, minute);
-                btnTime.setText(dateTime);
-            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show();
-        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
+                // 保存时间部分
+                String selectedTime = String.format(Locale.getDefault(),
+                        "%02d:%02d", hour, minute);
+
+                // 更新按钮显示
+                btnTime.setText(selectedDate + " " + selectedTime);
+            }, calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE), true).show();
+        }, calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)).show();
     }
 
 
@@ -340,8 +410,13 @@ public class AddRecordActivity extends AppCompatActivity {
     }
 
 
-    //TODO 保存记录
+    //保存记录
     private void saveRecord() {
+        // 验证输入
+        if (!validateInput()) {
+            return;
+        }
+
         // 获取记录类型
         int recordType = rgRecordType.getCheckedRadioButtonId() == R.id.rb_expense ?
                 Record.TYPE_EXPENSE : Record.TYPE_INCOME;
@@ -352,8 +427,10 @@ public class AddRecordActivity extends AppCompatActivity {
         // 获取备注
         String remark = etRemark.getText().toString().trim();
 
-        // 获取时间
-        String dateTime = btnTime.getText().toString();
+        // 解析日期和时间
+        String[] dateTimeParts = btnTime.getText().toString().split(" ");
+        String date = dateTimeParts[0];  // yyyy-MM-dd
+        String time = dateTimeParts.length > 1 ? dateTimeParts[1] : "00:00"; // HH:mm
 
         // 创建记录对象
         Record record = new Record();
@@ -362,11 +439,20 @@ public class AddRecordActivity extends AppCompatActivity {
         record.setCategoryId(selectedCategory.getId());
         record.setCategoryName(selectedCategory.getName());
         record.setRemark(remark);
-        record.setDate(dateTime);
-        record.setUserId(1); // 假设当前用户ID为1
+        record.setDate(date);
+        record.setTime(time);
+        record.setUserId(userId);
 
-        // TODO: 保存记录到数据库或服务器
-        Toast.makeText(this, "记录已保存", Toast.LENGTH_SHORT).show();
-        finish();
+        // 添加记录到数据库
+        RecordDao recordDao = new RecordDao(this);
+        long recordId = recordDao.addRecord(record);
+
+        if (recordId != -1) {
+            Toast.makeText(this, "记录已保存", Toast.LENGTH_SHORT).show();
+            setResult(RESULT_OK);
+            finish();
+        } else {
+            Toast.makeText(this, "保存失败，请重试", Toast.LENGTH_SHORT).show();
+        }
     }
 }

@@ -34,10 +34,10 @@ public class CategoryDao {
     }
 
     // 获取特定类型的类别
-    public Cursor getCategoriesByType(long userId, int type) {
+    public Cursor getCategoriesByType(int type) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        return db.query("category", null, "user_id=? AND type=?",
-                new String[]{String.valueOf(userId), String.valueOf(type)},
+        return db.query("category", null, "type=?",
+                new String[]{String.valueOf(type)},
                 null, null, "name ASC");
     }
 

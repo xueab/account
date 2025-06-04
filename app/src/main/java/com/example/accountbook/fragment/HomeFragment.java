@@ -65,6 +65,7 @@ public class HomeFragment extends Fragment implements RecordAdapter.OnRecordClic
     private RecordDao recordDao;
     private CategoryDao categoryDao;
     private int currentUserId = 1; // 假设当前用户ID为1，实际应从登录信息获取
+    private long userId;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -72,6 +73,9 @@ public class HomeFragment extends Fragment implements RecordAdapter.OnRecordClic
         recordDao = new RecordDao(requireContext());
         categoryDao = new CategoryDao(requireContext());
         selectedCalendar = Calendar.getInstance();
+        if (getArguments() != null) {
+            userId = getArguments().getLong("USER_ID", -1);
+        }
     }
 
     @Override
@@ -204,10 +208,8 @@ public class HomeFragment extends Fragment implements RecordAdapter.OnRecordClic
                     }
                 }
                 try {
-                    Date time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                            .parse(cursor.getString(cursor.getColumnIndexOrThrow("time")));
-                    record.setTime(time);
-                } catch (ParseException e) {
+                    record.setTime(cursor.getString(cursor.getColumnIndexOrThrow("time")));
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 recordList.add(record);

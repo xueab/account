@@ -7,7 +7,7 @@ public class Category {
     public static final int TYPE_EXPENSE = 0;  // 支出类型
     public static final int TYPE_INCOME = 1;   // 收入类型
 
-    private int id;
+    private long id;
     private String name;   // 分类名称
     private int type;  // 0:支出, 1:收入
     private String icon;   // icon 资源名
@@ -25,12 +25,20 @@ public class Category {
         this.userId = userId;
     }
 
+    public Category(long id, String name, int type, String icon) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.icon = icon;
+    }
+
+
     // Getters and Setters
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

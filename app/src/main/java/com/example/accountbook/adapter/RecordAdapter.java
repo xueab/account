@@ -64,7 +64,7 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.RecordView
 
         // 设置时间和备注
         if (record.getTime() != null) {
-            holder.tvTime.setText(DateUtils.formatTime(record.getTime()));
+            holder.tvTime.setText(record.getTime());
         }
         holder.tvRemark.setText(record.getRemark());
 

@@ -47,11 +47,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        userId = getIntent().getLongExtra("USER_ID",-1);
+        userDao = new UserDao(this);
         initView();
         setupBottomNavigation();
         setupListeners();
-        userId = getIntent().getLongExtra("USER_ID",-1);
-        userDao = new UserDao(this);
         if(userId == -1){
             Toast.makeText(this,"用户信息不存在",Toast.LENGTH_LONG).show();
             Intent intent = new Intent(this, LoginActivity.class);
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         //获取用户
         user = userDao.getUserById(userId);
         //加载用户头像
-        loadUserAvatar(user.getAvatar());
+        loadUserAvatar(user.getAvatar() == null ? user.getAvatar() : "");
     }
 
     @Override
@@ -131,13 +131,17 @@ public class MainActivity extends AppCompatActivity {
         initFragments();
     }
     private void initFragments() {
+        // 创建Bundle传递userId
+        Bundle bundle = new Bundle();
+        bundle.putLong("USER_ID", userId);
         homeFragment = new HomeFragment();
+        homeFragment.setArguments(bundle);
         statsFragment = new StatsFragment();
+        statsFragment.setArguments(bundle);
     }
 
     private void setupBottomNavigation() {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
-
         // 设置中间加号按钮的样式
         // 获取加号按钮的菜单项
         MenuItem addItem = bottomNavigationView.getMenu().findItem(R.id.nav_add);
@@ -166,8 +170,10 @@ public class MainActivity extends AppCompatActivity {
                 tvTitle.setText("统计");
                 return true;
             } else if (id == R.id.nav_add) {
-                // 点击加号按钮
-                startActivity(new Intent(this, AddRecordActivity.class));
+                // 点击加号按钮，启动 AddRecordActivity 并传递 userId
+                Intent intent = new Intent(this, AddRecordActivity.class);
+                intent.putExtra("USER_ID", userId);
+                startActivity(intent);
                 return true;
             }
             return false;

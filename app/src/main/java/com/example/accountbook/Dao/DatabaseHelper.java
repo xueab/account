@@ -77,21 +77,91 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_RECORD_DATE_INDEX);
         db.execSQL(CREATE_CATEGORY_USER_INDEX);
 
+        //支出类别插入
         ContentValues values = new ContentValues();
-        values.put("name", "吃饭");
+        values.put("name", "用餐");
         values.put("type", 0); // 0表示支出
-        values.put("icon", "food"); // 默认图标
+        values.put("icon", "ic_food");
         values.put("user_id", 1);
-        long newRowId = db.insert("category", null, values);
+        db.insert("category", null, values);
 
         values.clear();
-        values.put("amount", 50.00);
-        values.put("type", 0); // 支出
-        values.put("category_id", newRowId);
-        values.put("remark", "午餐");
-        values.put("date", "2025-06-02");
+        values.put("name", "日用品");
+        values.put("type", 0);
+        values.put("icon", "ic_dailyuse");
         values.put("user_id", 1);
-        db.insert("record", null, values);
+        db.insert("category", null, values);
+
+        values.clear();
+        values.put("name", "衣服");
+        values.put("type", 0);
+        values.put("icon", "ic_cloth");
+        values.put("user_id", 1);
+        db.insert("category", null, values);
+
+        values.clear();
+        values.put("name", "水果");
+        values.put("type", 0);
+        values.put("icon", "ic_fruit");
+        values.put("user_id", 1);
+        db.insert("category", null, values);
+
+        values.clear();
+        values.put("name", "游戏");
+        values.put("type", 0);
+        values.put("icon", "ic_game");
+        values.put("user_id", 1);
+        db.insert("category", null, values);
+
+        values.clear();
+        values.put("name", "宠物");
+        values.put("type", 0);
+        values.put("icon", "ic_pet");
+        values.put("user_id", 1);
+        db.insert("category", null, values);
+
+        values.clear();
+        values.put("name", "购物");
+        values.put("type", 0);
+        values.put("icon", "ic_shop");
+        values.put("user_id", 1);
+        db.insert("category", null, values);
+
+        values.clear();
+        values.put("name", "零食");
+        values.put("type", 0);
+        values.put("icon", "ic_snacks");
+        values.put("user_id", 1);
+        db.insert("category", null, values);
+
+        values.clear();
+        values.put("name", "交通");
+        values.put("type", 0);
+        values.put("icon", "ic_traffic");
+        values.put("user_id", 1);
+        db.insert("category", null, values);
+
+        //收入类别插入
+        values.clear();
+        values.put("name", "奖金");
+        values.put("type", 1);
+        values.put("icon", "ic_bonus");
+        values.put("user_id", 1);
+        db.insert("category", null, values);
+
+        values.clear();
+        values.put("name", "工资");
+        values.put("type", 1);
+        values.put("icon", "ic_salary");
+        values.put("user_id", 1);
+        db.insert("category", null, values);
+
+        values.clear();
+        values.put("name", "理财");
+        values.put("type", 1);
+        values.put("icon", "ic_investment");
+        values.put("user_id", 1);
+        db.insert("category", null, values);
     }
 
     @Override

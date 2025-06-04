@@ -119,7 +119,7 @@
                 android:id="@+id/tv_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="最近1周支出总额"
+                android:text="总支出"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"/>
 
@@ -127,7 +127,7 @@
                 android:id="@+id/tv_amount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="427.0元"
+                android:text="0.0"
                 android:textColor="#FFFFFF"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -170,7 +170,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="7笔"
+                android:text="0"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:gravity="center"/>
@@ -180,7 +180,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="74.0元"
+                android:text="0.0"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:gravity="center"/>
@@ -198,6 +198,7 @@
 
     <!-- 支出排行榜 -->
     <TextView
+        android:id="@+id/rank"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="总支出排行榜"

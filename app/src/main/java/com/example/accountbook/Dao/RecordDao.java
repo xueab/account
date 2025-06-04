@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.example.accountbook.Entity.Record;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,17 +16,18 @@ public class RecordDao {
         dbHelper = new DatabaseHelper(context);
     }
 
-    // 添加记录
-    public long addRecord(double amount, int type, long categoryId,
-                          String remark, String date, long userId) {
+    // 添加记录（基于Record对象）
+    public long addRecord(Record record) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put("amount", amount);
-        values.put("type", type);
-        values.put("category_id", categoryId);
-        values.put("remark", remark);
-        values.put("date", date);
-        values.put("user_id", userId);
+        values.put("amount", record.getAmount());
+        values.put("type", record.getType());
+        values.put("category_id", record.getCategoryId());
+        values.put("remark", record.getRemark());
+        values.put("date", record.getDate());
+        values.put("time", record.getTime());
+        values.put("user_id", record.getUserId());
+
         long id = db.insert("record", null, values);
         db.close();
         return id;
@@ -42,15 +45,15 @@ public class RecordDao {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         return db.query("record", null, "user_id=? AND date=?",
                 new String[]{String.valueOf(userId), date},
-                null, null, "time DESC");
+                null, null, "time ASC");
     }
 
     // 获取日期范围内的记录
-    public Cursor getRecordsByDateRange(long userId, String startDate, String endDate) {
+    public Cursor getRecordsByDateRange(long userId, long type,String startDate, String endDate) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         return db.query("record", null,
-                "user_id=? AND date BETWEEN ? AND ?",
-                new String[]{String.valueOf(userId), startDate, endDate},
+                "user_id=? AND type = ? AND date BETWEEN ? AND ?",
+                new String[]{String.valueOf(userId), String.valueOf(type), startDate, endDate},
                 null, null, "date DESC, time DESC");
     }
 
@@ -99,4 +102,5 @@ public class RecordDao {
                 "ORDER BY total DESC";
         return db.rawQuery(sql, new String[]{String.valueOf(userId), yearMonth, String.valueOf(type)});
     }
+
 }

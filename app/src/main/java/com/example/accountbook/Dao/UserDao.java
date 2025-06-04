@@ -24,6 +24,7 @@ public class UserDao {
         ContentValues values = new ContentValues();
         values.put("phone", phone);
         values.put("password", password);
+        values.put("avatar", "");
         long id = db.insert("user_info", null, values);
         db.close();
         return id;
