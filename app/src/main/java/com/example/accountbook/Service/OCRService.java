@@ -51,8 +51,8 @@ public class OCRService {
     private Client createClient() throws Exception {
         try {
             Config config = new Config()
-                    .setAccessKeyId("LTAI5tLWQPeBCoRgnDQWMDgq")
-                    .setAccessKeySecret("i0iph4vDFEvABG1t8mPQtXftOyRuiz");
+                    .setAccessKeyId("")
+                    .setAccessKeySecret("");
             config.endpoint = "ocr-api.cn-hangzhou.aliyuncs.com";
             return new Client(config);
         } catch (Exception e) {
