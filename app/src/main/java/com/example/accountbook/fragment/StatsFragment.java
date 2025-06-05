@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -27,6 +29,7 @@ import com.example.accountbook.Entity.Category;
 import com.example.accountbook.Entity.Record;
 import com.example.accountbook.R;
 import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
@@ -470,7 +473,6 @@ public class StatsFragment extends Fragment {
     }
 
     // 更新饼图
-    @SuppressLint("ClickableViewAccessibility")//抑制 Lint 工具对特定代码的警告
     private void updateChart(String range, boolean isExpense, Map<Long, CategoryStats> categoryStatsMap) {
         ArrayList<PieEntry> entries = new ArrayList<>();
 
@@ -517,16 +519,23 @@ public class StatsFragment extends Fragment {
         // 设置数据集
         PieDataSet dataSet = new PieDataSet(entries, "");
         dataSet.setColors(customColors);
-        dataSet.setValueTextSize(16f);
+        // dataSet.setValueTextSize(16f);
+        dataSet.setDrawValues(false); // 不显示数值
+        dataSet.setValueTextSize(0f);
 
         PieData pieData = new PieData(dataSet);
-        pieData.setValueFormatter(new ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value) {
-                float percentage = (value / pieData.getYValueSum()) * 100;
-                return String.format(Locale.getDefault(), "%.1f%%", percentage);
-            }
-        });
+//        pieData.setValueFormatter(new ValueFormatter() {
+//            @Override
+//            public String getFormattedValue(float value) {
+//                float percentage = (value / pieData.getYValueSum()) * 100;
+//                return String.format(Locale.getDefault(), "%.1f%%", percentage);
+//            }
+//        });
+
+        pieChart.setDrawEntryLabels(false); // 不显示分类标签
+        pieChart.setUsePercentValues(false); // 不使用百分比显示
+        // pieChart.getLegend().setEnabled(false);  // 不显示图例
+
 
         pieChart.setData(pieData);
         pieChart.getDescription().setEnabled(false);
@@ -536,6 +545,21 @@ public class StatsFragment extends Fragment {
         pieChart.setEntryLabelColor(Color.BLACK);
         pieChart.setEntryLabelTextSize(16f);
         pieChart.invalidate();
+
+        Legend legend = pieChart.getLegend();
+        legend.setEnabled(true);
+        legend.setOrientation(Legend.LegendOrientation.VERTICAL);
+
+        legend.setMaxSizePercent(0.4f);
+        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
+        legend.setYEntrySpace(10f);  // 垂直间距
+        legend.setXEntrySpace(20f); // 水平间距
+        legend.setTextSize(12f);
+        legend.setWordWrapEnabled(true);  // 允许换行
+
+        pieChart.setExtraOffsets(30f, 10f, 30f, 10f);  // 左、上、右、下边距
+        pieChart.setMinOffset(20f);  // 减少饼图与边缘的间距
 
         // 点击监听
         pieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
@@ -591,6 +615,7 @@ public class StatsFragment extends Fragment {
         });
 
         pieChart.invalidate();
+        pieChart.requestLayout();
     }
 
     private void clearHighlightAndPopup() {
@@ -633,13 +658,3 @@ public class StatsFragment extends Fragment {
     }
 
 }
-
-/*
-加载数据实现过程 切换时触发更新过程,最开始在init中加载数据,明显的卡顿,后来使用AsyncTask在后台加载数据,但后台线程不能更新UI
-就采用切换回主线程的方式更新UI
-getActivity().runOnUiThread(new Runnable() {
-    @Override
-    public void run() {
-        calculateAndDisplayStats(range, isExpense);//切换回主线程更新UI,更新UI必须在主线程进行
-    }
-});*/
