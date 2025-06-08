@@ -21,6 +21,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -47,8 +49,15 @@
             android:label="@string/app_name" />
         <activity android:name=".activity.RegisterActivity"
             android:exported="false"/>
-        <activity android:name=".activity.AddRecordActivity"
-            android:exported="false"/>
+        <activity
+            android:name=".activity.AddRecordActivity"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="OCR_RESULT_READY" />
+                <action android:name="OCR_RESULT_FAILED" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".activity.UserProfileActivity"
             android:label="用户详情"
@@ -59,6 +68,9 @@
         </activity>
         <service android:name=".Service.OCRProcessingService" />
         <activity android:name=".activity.ChangePasswordActivity" />
+        <activity
+            android:name=".activity.EditRecordActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

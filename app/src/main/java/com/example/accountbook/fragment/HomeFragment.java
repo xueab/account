@@ -1,6 +1,7 @@
 package com.example.accountbook.fragment;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +31,7 @@ import com.example.accountbook.Entity.Record;
 import com.example.accountbook.R;
 import com.example.accountbook.Service.OCRProcessingService;
 import com.example.accountbook.Utils.DateUtils;
+import com.example.accountbook.activity.EditRecordActivity;
 import com.example.accountbook.activity.LoginActivity;
 import com.example.accountbook.adapter.RecordAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -129,7 +131,7 @@ public class HomeFragment extends Fragment implements RecordAdapter.OnRecordClic
 
         // 添加7个日期项（当前选中日期的前3天和后3天）
         Calendar tempCalendar = (Calendar) selectedCalendar.clone();
-        tempCalendar.add(Calendar.DAY_OF_MONTH, -3); // 从选中日期的前3天开始
+        tempCalendar.add(Calendar.DAY_OF_MONTH, -3); // 从选中日期的前3天开始,下方开始处理的第一项
 
         for (int i = 0; i < 7; i++) {
             View dateItem = LayoutInflater.from(getContext())
@@ -159,6 +161,12 @@ public class HomeFragment extends Fragment implements RecordAdapter.OnRecordClic
                 loadRecordsForSelectedDate();
             });
 
+            // 设置长按事件
+            dateItem.setOnLongClickListener(v -> {
+                showDatePickerDialog();
+                return true;
+            });
+
             layoutDateContainer.addView(dateItem);
             tempCalendar.add(Calendar.DAY_OF_MONTH, 1);
         }
@@ -168,6 +176,34 @@ public class HomeFragment extends Fragment implements RecordAdapter.OnRecordClic
         // 计算选中日期的位置并滚动到中间
         int scrollTo = (layoutDateContainer.getWidth() - scrollDatePicker.getWidth()) / 2;
         scrollDatePicker.smoothScrollTo(scrollTo, 0);
+    }
+
+    private void showDatePickerDialog() {
+        // 创建日期选择器对话框
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                requireContext(),
+                (view, year, month, dayOfMonth) -> {
+                    // 用户选择日期后的回调
+                    Calendar newCalendar = Calendar.getInstance();
+                    newCalendar.set(year, month, dayOfMonth);
+
+                    // 更新选中日期
+                    selectedCalendar = newCalendar;
+
+                    // 重新加载日期选择器和数据
+                    updateDateSelector();
+                    loadRecordsForSelectedDate();
+
+                    // 确保滚动到选中日期
+                    scrollToSelectedDate();
+                },
+                selectedCalendar.get(Calendar.YEAR),
+                selectedCalendar.get(Calendar.MONTH),
+                selectedCalendar.get(Calendar.DAY_OF_MONTH)
+        );
+
+        // 显示对话框
+        datePickerDialog.show();
     }
 
     private boolean isSameDay(Calendar cal1, Calendar cal2) {
@@ -248,10 +284,22 @@ public class HomeFragment extends Fragment implements RecordAdapter.OnRecordClic
     @Override
     public void onRecordClick(int position) {
         Record record = recordList.get(position);
-        Intent intent = new Intent(getActivity(), LoginActivity.class);
+        Intent intent = new Intent(getActivity(), EditRecordActivity.class);
         intent.putExtra("record_id", record.getId());
+        intent.putExtra("USER_ID", userId);
         startActivityForResult(intent, REQUEST_EDIT_RECORD);
     }
+
+//    //从EditRecordActivity返回时触发
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        if (requestCode == REQUEST_EDIT_RECORD && resultCode == Activity.RESULT_OK) {
+//            // 记录被修改，刷新列表
+//            loadRecordsForSelectedDate();
+//        }
+//    }
 
 
     @Override

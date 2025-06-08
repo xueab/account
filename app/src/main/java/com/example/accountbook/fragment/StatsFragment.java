@@ -632,6 +632,20 @@ public class StatsFragment extends Fragment {
         rankingAdapter.updateData(rankingItems);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // 获取当前是支出还是收入模式
+        boolean isExpense = btnExpense.isSelected();
+        if(tvWeek.isSelected()){
+            new LoadDataTask().execute("week", isExpense);
+        } else if (tvMonth.isSelected()) {
+            new LoadDataTask().execute("month", isExpense);
+        } else if (tvYear.isSelected()) {
+            new LoadDataTask().execute("year", isExpense);
+        }
+    }
+
 }
 
 /*

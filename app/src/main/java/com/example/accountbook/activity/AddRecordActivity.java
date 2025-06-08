@@ -1,12 +1,19 @@
 package com.example.accountbook.activity;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -29,6 +36,10 @@ import com.example.accountbook.Dao.RecordDao;
 import com.example.accountbook.Entity.Category;
 import com.example.accountbook.Entity.Record;
 import com.example.accountbook.R;
+import com.example.accountbook.Service.OCRProcessingService;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,8 +48,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import static android.content.ContentValues.TAG;
+
 public class AddRecordActivity extends AppCompatActivity {
 
+    private static final int PICK_IMAGE_REQUEST = 1;
     private ImageButton btnBack;
     private RadioGroup rgRecordType;
     private LinearLayout layoutCategory;
@@ -59,6 +73,9 @@ public class AddRecordActivity extends AppCompatActivity {
     private RecordDao recordDao;
     private long userId;
 
+    private AlertDialog loadingDialog;
+    private BroadcastReceiver ocrReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +90,9 @@ public class AddRecordActivity extends AppCompatActivity {
         // 初始化数据
         setupCategoryData();
         setupListeners();
+
+        // 注册广播接收器
+        registerOCRResultReceiver();
     }
 
     private void initViews() {
@@ -207,21 +227,6 @@ public class AddRecordActivity extends AppCompatActivity {
         btn4.setSelected(false);
     }
 
-    private void updateCategorySelection(Category category) {
-        selectedCategory = category;
-        resetCategoryButtons();
-
-        if (category.getName().equals("饮食")) {
-            btn1.setSelected(true);
-        } else if (category.getName().equals("出行")) {
-            btn2.setSelected(true);
-        } else if (category.getName().equals("日用")) {
-            btn3.setSelected(true);
-        } else if (category.getName().equals("零食")) {
-            btn4.setSelected(true);
-        }
-    }
-
     //更改图标UI
     private void updateCategoryUI() {
         boolean isExpense = rgRecordType.getCheckedRadioButtonId() == R.id.rb_expense;
@@ -343,20 +348,22 @@ public class AddRecordActivity extends AppCompatActivity {
     }
 
     private void updateFirstCategoryIcon(Category selectedCategory) {
-        // 更新第一个分类按钮的图标和文本
-        btn1.setImageResource(getResources().getIdentifier(
-                selectedCategory.getIcon(), "drawable", getPackageName()));
-        ((TextView) ((ViewGroup) btn1.getParent()).getChildAt(1))
-                .setText(selectedCategory.getName());
+        boolean isExpense = rgRecordType.getCheckedRadioButtonId() == R.id.rb_expense;
+        List<Category> currentCategories = isExpense ? expenseCategories : incomeCategories;
 
-        // 重置所有按钮的选中状态
-        resetCategoryButtons();
+        // 确保选中的分类在列表中
+        if (!currentCategories.contains(selectedCategory)) {
+            currentCategories.add(0, selectedCategory);
+        }
 
-        // 高亮第一个分类按钮
-        btn1.setSelected(true);
+        // 如果选中的分类不在第一个位置，调整位置
+        if (currentCategories.indexOf(selectedCategory) != 0) {
+            currentCategories.remove(selectedCategory);
+            currentCategories.add(0, selectedCategory);
+        }
 
-        // 更新当前选中的分类
-        this.selectedCategory = selectedCategory;
+        // 更新UI
+        updateCategoryUI();
     }
 
     // 时间选择
@@ -385,7 +392,294 @@ public class AddRecordActivity extends AppCompatActivity {
 
     private void selectFromGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, 1);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+            try {
+                // 显示加载弹窗
+                showLoadingDialog();
+
+                Uri selectedImageUri = data.getData();
+
+                // 启动OCR服务处理图片
+                Intent serviceIntent = new Intent(this, OCRProcessingService.class);
+                serviceIntent.putExtra("image_uri", selectedImageUri.toString());
+                startService(serviceIntent);
+
+
+            } catch (Exception e) {
+                dismissLoadingDialog();
+                Toast.makeText(this, "图片处理失败", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // 添加显示加载弹窗的方法
+    private void showLoadingDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_loading, null);
+        builder.setView(dialogView);
+        builder.setCancelable(false);
+        loadingDialog = builder.create();
+        loadingDialog.show();
+    }
+
+    // 添加关闭加载弹窗的方法
+    private void dismissLoadingDialog() {
+        if (loadingDialog != null && loadingDialog.isShowing()) {
+            loadingDialog.dismiss();
+        }
+    }
+
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
+    private void registerOCRResultReceiver() {
+        // 先注销已有的接收器
+        try {
+            unregisterReceiver(ocrReceiver);
+        } catch (Exception e) {
+            // 忽略异常
+        }
+
+        ocrReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d(TAG, "接收到广播: " + intent.getAction());
+                dismissLoadingDialog();
+
+                if (intent == null || intent.getAction() == null) {
+                    return;
+                }
+
+                switch (intent.getAction()) {
+                    case "OCR_RESULT_READY":
+                        String ocrJson = intent.getStringExtra("ocr_json");
+                        if (ocrJson != null) {
+                            parseAndFillOCRResult(ocrJson);
+                        }
+                        break;
+                    case "OCR_RESULT_FAILED":
+                        String error = intent.getStringExtra("error");
+                        Toast.makeText(AddRecordActivity.this,
+                                "识别失败: " + (error != null ? error : "未知错误"),
+                                Toast.LENGTH_LONG).show();
+                        break;
+                }
+            }
+        };
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("OCR_RESULT_READY");
+        filter.addAction("OCR_RESULT_FAILED");
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(ocrReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(ocrReceiver, filter);
+        }
+        Log.d(TAG, "广播接收器已注册");
+    }
+
+    private void parseAndFillOCRResult(String ocrJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(ocrJson);
+
+            // 检查data对象是否存在
+            if (!jsonObject.has("data")) {
+                Toast.makeText(this, "票据识别失败：缺少数据字段", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            JSONObject data = jsonObject.getJSONObject("data");
+            boolean hasValidData = false;
+
+            // 1. 处理金额（核心字段）
+            if (data.has("totalAmount") && !data.isNull("totalAmount")) {
+                String amountStr = data.optString("totalAmount", "").trim();
+                if (!amountStr.isEmpty()) {
+                    try {
+                        boolean isExpense = amountStr.startsWith("-");
+                        if (isExpense) {
+                            amountStr = amountStr.substring(1);
+                            rgRecordType.check(R.id.rb_expense);
+                        } else {
+                            rgRecordType.check(R.id.rb_income);
+                        }
+
+                        double amount = Double.parseDouble(amountStr);
+                        etAmount.setText(String.format(Locale.getDefault(), "%.2f", amount));
+                        hasValidData = true;
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(this, "金额格式不正确", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            } else {
+                Toast.makeText(this, "未识别到金额信息", Toast.LENGTH_SHORT).show();
+            }
+
+            // 2. 处理分类
+            if (data.has("recipientName") && !data.isNull("recipientName")) {
+                String recipientName = data.optString("recipientName", "").trim();
+                if (!recipientName.isEmpty()) {
+                    boolean isExpense = rgRecordType.getCheckedRadioButtonId() == R.id.rb_expense;
+                    boolean categoryUpdated = false;
+                    if (isExpense) {
+                        if (recipientName.contains("火车") || recipientName.contains("车票")) {
+                            updateCategorySelectionByName("交通");
+                            categoryUpdated = true;
+                        } else if (recipientName.contains("餐饮") || recipientName.contains("饭店") || recipientName.contains("美食")) {
+                            updateCategorySelectionByName("餐饮");
+                            categoryUpdated = true;
+                        } else if (recipientName.contains("购物") || recipientName.contains("超市") || recipientName.contains("咖啡")) {
+                            updateCategorySelectionByName("日用品");
+                            categoryUpdated = true;
+                        }
+                    } else {
+                        if (recipientName.contains("工资")) {
+                            updateCategorySelectionByName("工资");
+                            categoryUpdated = true;
+                        } else if (recipientName.contains("奖金")) {
+                            updateCategorySelectionByName("奖金");
+                            categoryUpdated = true;
+                        } else if (recipientName.contains("投资")) {
+                            updateCategorySelectionByName("投资");
+                            categoryUpdated = true;
+                        }
+                    }
+
+                    if (!categoryUpdated) {
+                        Toast.makeText(this, "未识别到有效分类", Toast.LENGTH_SHORT).show();
+                    } else {
+                        hasValidData = true;
+                    }
+                }
+            }
+
+            // 3. 处理时间
+            if (data.has("paymentTime") && !data.isNull("paymentTime")) {
+                String paymentTime = data.optString("paymentTime", "").trim();
+                if (!paymentTime.isEmpty()) {
+                    try {
+                        // 转换格式：从 "2002年6月4日 12:53:07" 到 "2002-06-04 12:53"
+                        String formattedTime = convertTimeFormat(paymentTime);
+                        if (formattedTime != null) {
+                            btnTime.setText(formattedTime);
+                            hasValidData = true;
+                        } else {
+                            Toast.makeText(this, "时间格式转换失败", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        Toast.makeText(this, "时间解析失败", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            // 4. 处理备注
+            String recipient = data.optString("recipientName", "").trim();
+            String description = data.optString("description", "").trim();
+
+            if (!recipient.isEmpty() || !description.isEmpty()) {
+                String remark = "";
+                if (!recipient.isEmpty() && !description.isEmpty()) {
+                    remark = recipient + " - " + description;
+                } else if (!recipient.isEmpty()) {
+                    remark = recipient;
+                } else {
+                    remark = description;
+                }
+
+                if (remark.length() > 30) {
+                    remark = remark.substring(0, 30) + "...";
+                }
+                etRemark.setText(remark);
+                hasValidData = true;
+            }
+
+            // 最终检查是否识别到任何有效数据
+            if (!hasValidData) {
+                Toast.makeText(this, "未识别到有效票据信息", Toast.LENGTH_SHORT).show();
+            }
+
+        } catch (JSONException e) {
+            Toast.makeText(this, "票据数据解析失败", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "OCR JSON解析错误", e);
+        }
+    }
+
+    /**
+     * 将OCR时间格式转换为标准格式
+     * 输入示例："2002年6月4日 12:53:07"
+     * 输出示例："2002-06-04 12:53"
+     */
+    private String convertTimeFormat(String ocrTime) {
+        try {
+            // 1. 替换中文日期标识
+            String normalized = ocrTime
+                    .replace("年", "-")
+                    .replace("月", "-")
+                    .replace("日", " ");
+
+            // 2. 分割日期和时间部分
+            String[] parts = normalized.split(" ");
+            if (parts.length != 2) return null;
+
+            // 3. 处理日期部分 (补零)
+            String[] dateParts = parts[0].split("-");
+            if (dateParts.length != 3) return null;
+
+            String year = dateParts[0];
+            String month = String.format(Locale.getDefault(), "%02d", Integer.parseInt(dateParts[1]));
+            String day = String.format(Locale.getDefault(), "%02d", Integer.parseInt(dateParts[2]));
+
+            // 4. 处理时间部分 (去掉秒)
+            String[] timeParts = parts[1].split(":");
+            if (timeParts.length < 2) return null;
+
+            String hour = timeParts[0];
+            String minute = timeParts[1];
+
+            // 5. 组合成标准格式
+            return String.format(Locale.getDefault(),
+                    "%s-%s-%s %s:%s",
+                    year, month, day, hour, minute);
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // 根据分类名称更新UI选择
+    private void updateCategorySelectionByName(String categoryName) {
+        boolean isExpense = rgRecordType.getCheckedRadioButtonId() == R.id.rb_expense;
+        List<Category> categories = isExpense ? expenseCategories : incomeCategories;
+
+        for (Category category : categories) {
+            if (category.getName().equals(categoryName)) {
+                selectedCategory = category;
+                // 更新主界面第一个分类图标为选中的分类
+                updateFirstCategoryIcon(selectedCategory);
+                break;
+            }
+        }
+    }
+
+    // 在onDestroy中添加取消注册接收器的逻辑
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            if (ocrReceiver != null) {
+                unregisterReceiver(ocrReceiver);
+            }
+        } catch (IllegalArgumentException e) {
+            // 接收器未注册，忽略
+        }
+        dismissLoadingDialog();
     }
 
     // 验证金额输入是否有效

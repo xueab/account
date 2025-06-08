@@ -103,4 +103,38 @@ public class RecordDao {
         return db.rawQuery(sql, new String[]{String.valueOf(userId), yearMonth, String.valueOf(type)});
     }
 
+    public Cursor getRecordById(long recordId) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        return db.query(
+                "record",
+                null,
+                "id = ?",
+                new String[]{String.valueOf(recordId)},
+                null,
+                null,
+                null
+        );
+    }
+
+    public boolean updateRecord(Record record) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("amount", record.getAmount());
+        values.put("type", record.getType());
+        values.put("category_id", record.getCategoryId());
+        values.put("remark", record.getRemark());
+        values.put("date", record.getDate());
+        values.put("time", record.getTime());
+
+        int rowsAffected = db.update(
+                "record",
+                values,
+                "id = ?",
+                new String[]{String.valueOf(record.getId())}
+        );
+
+        return rowsAffected > 0;
+    }
+
 }
