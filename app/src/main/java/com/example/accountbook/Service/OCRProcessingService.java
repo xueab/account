@@ -40,6 +40,7 @@ public class OCRProcessingService extends Service {
         }
     }
 
+    //每次通过 startService() 启动服务时调用
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.getExtras() != null) {

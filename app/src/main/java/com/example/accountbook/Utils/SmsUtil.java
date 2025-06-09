@@ -37,6 +37,7 @@ public class SmsUtil {
 
     //保存验证码
     private static void saveVerificationCode(Context context, String phone, String code) {
+        //"AuthPrefs"：指定存储文件名,MODE_PRIVATE:表示仅当前应用可访问
         SharedPreferences prefs = context.getSharedPreferences("AuthPrefs", MODE_PRIVATE);
         prefs.edit()
                 .putString("phone",phone)
@@ -60,6 +61,7 @@ public class SmsUtil {
             Toast.makeText(context,"验证码错误或已过期",Toast.LENGTH_SHORT).show();
             return false;
         }
+
         // 检查验证码是否存在
         if (storedCode == null) {
             Toast.makeText(context,"验证码错误或已过期",Toast.LENGTH_SHORT).show();
@@ -78,11 +80,6 @@ public class SmsUtil {
             return false;
         }
 
-        //            prefs.edit()
-        //                    .remove("phone")
-        //                    .remove("sms_code")
-        //                    .remove("code_expiry")
-        //                    .apply();
         // 比较输入的验证码和存储的验证码是否一致
         return storedCode.equals(inputCode);
     }

@@ -65,7 +65,6 @@ public class OCRService {
         if (ocrClient == null) {
             throw new IllegalStateException("OCR client not initialized");
         }
-
         try {
             RecognizePaymentRecordRequest request = new RecognizePaymentRecordRequest()
                     .setBody(inputStream);

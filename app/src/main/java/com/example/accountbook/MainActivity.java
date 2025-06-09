@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private Long userId;
     private UserDao userDao;
     private User user;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,15 +87,15 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // 处理文件路径的情况
-        if (avatarUri.startsWith("/")) {
-            // 本地文件路径
-            File file = new File(avatarUri);
-            if (file.exists()) {
-                btnUserProfile.setImageURI(Uri.fromFile(file));
-                return;
-            }
-        }
+//        // 处理文件路径的情况
+//        if (avatarUri.startsWith("/")) {
+//            // 本地文件路径
+//            File file = new File(avatarUri);
+//            if (file.exists()) {
+//                btnUserProfile.setImageURI(Uri.fromFile(file));
+//                return;
+//            }
+//        }
 
         // 处理content://或file:// URI
         if (avatarUri.startsWith("content://") || avatarUri.startsWith("file://")) {
@@ -113,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
         // 默认情况
         btnUserProfile.setImageResource(R.drawable.ic_default_avatar);
     }
+
     private void setupListeners() {
         // 用户头像点击事件
         btnUserProfile.setOnClickListener(v -> {
@@ -122,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
     }
-
 
     private void initView(){
         // 初始化用户头像按钮
@@ -145,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
         // 设置中间加号按钮的样式
         // 获取加号按钮的菜单项
         MenuItem addItem = bottomNavigationView.getMenu().findItem(R.id.nav_add);
-        // 创建可变字符串并设置样式
+        //放大 1.5 倍，使其在视觉上更突出。
         SpannableStringBuilder addTitle = new SpannableStringBuilder(addItem.getTitle());
         addTitle.setSpan(new RelativeSizeSpan(1.5f), 0, addTitle.length(), 0);
         // 更新加号按钮的标题
@@ -183,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setItemRippleColor(null);
     }
 
-    // 处理返回键，避免退出应用
+    // 处理返回键，避免退出应用,如果当前选中的不是首页（R.id.nav_home），则强制跳转到首页。
     @Override
     public void onBackPressed() {
         if (bottomNavigationView.getSelectedItemId() != R.id.nav_home) {

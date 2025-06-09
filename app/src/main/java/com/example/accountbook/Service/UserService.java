@@ -16,6 +16,7 @@ import org.bouncycastle.util.encoders.Hex;
 
 import static com.example.accountbook.Utils.SmsUtil.isVerificationCodeValid;
 
+//实现用户注册(密码SM3加密),账号密码登陆,账号验证码登陆,修改密码功能
 public class UserService {
     private UserDao userDao;
     private Context context;

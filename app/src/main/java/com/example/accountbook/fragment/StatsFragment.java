@@ -595,7 +595,7 @@ public class StatsFragment extends Fragment {
                     popupWindow.showAsDropDown(
                             pieChart,
                             (int) (x - popupWindow.getWidth() / 2),
-                            (int) (y - 700)
+                            (int) (y - 865)
                     );
                 }
             }

@@ -250,6 +250,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
         startCountDown();
     }
 
+
     private void startCountDown() {
         new CountDownTimer(60000, 1000) {
             public void onTick(long millisUntilFinished) {

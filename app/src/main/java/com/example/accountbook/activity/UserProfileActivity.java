@@ -35,7 +35,6 @@ public class UserProfileActivity extends AppCompatActivity {
     private CircleImageView ivAvatar;
     private TextView tvPhone;
     private static final int PICK_IMAGE_REQUEST_1 = 12;//从相册选取图片
-    private static final int PERMISSION_REQUEST_CODE = 100; // 可以是任意唯一整数值
     private UserDao userDao;
     private User user;
 
@@ -97,15 +96,15 @@ public class UserProfileActivity extends AppCompatActivity {
             return;
         }
 
-        // 处理文件路径的情况
-        if (avatarUri.startsWith("/")) {
-            // 本地文件路径
-            File file = new File(avatarUri);
-            if (file.exists()) {
-                ivAvatar.setImageURI(Uri.fromFile(file));
-                return;
-            }
-        }
+//        // 处理文件路径的情况
+//        if (avatarUri.startsWith("/")) {
+//            // 本地文件路径
+//            File file = new File(avatarUri);
+//            if (file.exists()) {
+//                ivAvatar.setImageURI(Uri.fromFile(file));
+//                return;
+//            }
+//        }
 
         // 处理content://或file:// URI
         if (avatarUri.startsWith("content://") || avatarUri.startsWith("file://")) {
@@ -148,10 +147,9 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void openImagePicker() {
-
         // 使用系统相册选择图片
         Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/*");
+        intent.setType("image/*");//不绑定具体 URI，系统会自动匹配所有能处理图片的应用（如相册、文件管理器等）
         startActivityForResult(intent, PICK_IMAGE_REQUEST_1);
     }
 
@@ -236,7 +234,9 @@ public class UserProfileActivity extends AppCompatActivity {
     private void performLogout() {
         // 跳转到登录页面
         Intent intent = new Intent(this, LoginActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);//清除任务栈中的所有Activity
+        //1.清除当前任务栈中所有的 Activity（即清空用户之前打开的所有页面）
+        //2.将 LoginActivity 放入一个新的任务栈中（作为栈底 Activity）
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
     }

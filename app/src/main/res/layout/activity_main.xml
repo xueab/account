@@ -36,7 +36,9 @@
             app:tint="@null" />
     </RelativeLayout>
 
+
     <!-- 内容区域 -->
+    <!-- 用于动态切换 Fragment -->
     <FrameLayout
         android:id="@+id/container"
         android:layout_width="match_parent"

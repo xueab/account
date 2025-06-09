@@ -272,6 +272,7 @@ public class RegisterActivity extends AppCompatActivity {
         }.start();
     }
 
+
     //注册功能
     private void register(String account, String password) {
         userService.register(account,password);

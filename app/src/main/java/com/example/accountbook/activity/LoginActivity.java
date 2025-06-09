@@ -65,17 +65,6 @@ public class LoginActivity extends AppCompatActivity {
         layoutVerification = findViewById(R.id.layout_verification);
     }
 
-    //加载保存的信息
-    private void loadSavedCredentials() {
-        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        boolean remember = sharedPreferences.getBoolean(KEY_REMEMBER, false);
-        String savedAccount = sharedPreferences.getString(KEY_ACCOUNT, "");
-        String savedPassword = sharedPreferences.getString(KEY_PASSWORD, "");
-        etAccount.setText(savedAccount);
-        etPassword.setText(savedPassword);
-        cbRemember.setChecked(remember);
-    }
-
     private void setupListeners() {
         tvSwitchLogin.setOnClickListener(v -> switchLoginMethod());
         tvRegister.setOnClickListener(v -> {
@@ -133,6 +122,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    //切换登陆方式
     private void switchLoginMethod() {
         isPasswordLogin = !isPasswordLogin;
         if (isPasswordLogin) {
@@ -170,6 +160,17 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    //加载保存的信息
+    private void loadSavedCredentials() {
+        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        boolean remember = sharedPreferences.getBoolean(KEY_REMEMBER, false);
+        String savedAccount = sharedPreferences.getString(KEY_ACCOUNT, "");
+        String savedPassword = sharedPreferences.getString(KEY_PASSWORD, "");
+        etAccount.setText(savedAccount);
+        etPassword.setText(savedPassword);
+        cbRemember.setChecked(remember);
+    }
+
     //记住密码
     private void saveCredentials(String account, String password, boolean remember,int layoutPassword) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -179,27 +180,34 @@ public class LoginActivity extends AppCompatActivity {
             editor.putBoolean(KEY_REMEMBER, remember);
         } else if (layoutPassword == View.VISIBLE) {
             editor.putString(KEY_ACCOUNT, account);
+            editor.putString(KEY_PASSWORD, "");
+            editor.putBoolean(KEY_REMEMBER, false);
         } else if(layoutPassword == View.GONE){
             editor.putString(KEY_ACCOUNT, account);
+            editor.putString(KEY_PASSWORD, "");
+            editor.putBoolean(KEY_REMEMBER, false);
         } else {
             editor.clear();  // 如果不记住密码，清除所有保存的数据
         }
         editor.apply();
     }
+
+    // 获取验证码
     private void getVerificationCode(String account) {
-        // 获取验证码
         SmsUtil.sendVerificationCode(this, account);
         Toast.makeText(this, "验证码已发送", Toast.LENGTH_SHORT).show();
         startCountDown();
     }
 
     private void startCountDown() {
+        //创建倒计时器
         new CountDownTimer(60000, 1000) {
+            //倒计时过程回调
             public void onTick(long millisUntilFinished) {
                 btnGetVerification.setText(millisUntilFinished / 1000 + "秒后重试");
                 btnGetVerification.setEnabled(false);
             }
-
+            //倒计时过程回调
             public void onFinish() {
                 btnGetVerification.setText("获取验证码");
                 btnGetVerification.setEnabled(true);

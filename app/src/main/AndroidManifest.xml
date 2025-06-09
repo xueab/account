@@ -67,7 +67,8 @@
                 android:value=".MainActivity" />
         </activity>
         <service android:name=".Service.OCRProcessingService" />
-        <activity android:name=".activity.ChangePasswordActivity" />
+        <activity android:name=".activity.ChangePasswordActivity"
+            android:exported="false" />
         <activity
             android:name=".activity.EditRecordActivity"
             android:exported="false" />

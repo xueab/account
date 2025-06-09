@@ -113,6 +113,7 @@
                 android:background="#EEEEEE"/>
 
             <!-- 修改密码 -->
+            <!-- ?attr/selectableItemBackground是Android系统内置的可点击项背景-->
             <LinearLayout
                 android:id="@+id/layout_change_password"
                 android:layout_width="match_parent"

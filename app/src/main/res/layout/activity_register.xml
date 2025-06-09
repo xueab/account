@@ -117,6 +117,7 @@
             android:textSize="12sp"
             android:textColor="#FF0000"/>
 
+
         <View
             android:id="@+id/view_strength_low"
             android:layout_width="30dp"
