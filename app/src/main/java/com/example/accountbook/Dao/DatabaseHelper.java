@@ -162,6 +162,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("icon", "ic_investment");
         values.put("user_id", 1);
         db.insert("category", null, values);
+
+        values.put("name", "红包");
+        values.put("type", 1);
+        values.put("icon", "ic_redpacket");
+        values.put("user_id", 1);
+        db.insert("category", null, values);
     }
 
     @Override

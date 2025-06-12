@@ -229,6 +229,24 @@
                 android:inputType="numberDecimal"
                 android:textSize="18sp"/>
 
+            <!-- 备注 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="备注"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+
+            <EditText
+                android:id="@+id/et_remark"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="可选"
+                android:inputType="text"
+                android:maxLines="3"/>
+
             <!-- 时间选择 -->
             <TextView
                 android:layout_width="wrap_content"
@@ -247,24 +265,6 @@
                 android:gravity="start"
                 android:text="2025-05-19 19:00"
                 android:textColor="@android:color/black"/>
-
-            <!-- 备注 -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="备注"
-                android:textSize="16sp"
-                android:textStyle="bold"/>
-
-            <EditText
-                android:id="@+id/et_remark"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:hint="可选"
-                android:inputType="text"
-                android:maxLines="3"/>
 
             <!-- 从相册选择 -->
             <TextView

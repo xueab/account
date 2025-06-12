@@ -143,14 +143,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupBottomNavigation() {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
-        // 设置中间加号按钮的样式
-        // 获取加号按钮的菜单项
-        MenuItem addItem = bottomNavigationView.getMenu().findItem(R.id.nav_add);
-        //放大 1.5 倍，使其在视觉上更突出。
-        SpannableStringBuilder addTitle = new SpannableStringBuilder(addItem.getTitle());
-        addTitle.setSpan(new RelativeSizeSpan(1.5f), 0, addTitle.length(), 0);
-        // 更新加号按钮的标题
-        addItem.setTitle(addTitle);
+//        // 设置中间加号按钮的样式
+//        // 获取加号按钮的菜单项
+//        MenuItem addItem = bottomNavigationView.getMenu().findItem(R.id.nav_add);
+//        //放大 1.5 倍，使其在视觉上更突出。
+//        SpannableStringBuilder addTitle = new SpannableStringBuilder(addItem.getTitle());
+//        addTitle.setSpan(new RelativeSizeSpan(1.5f), 0, addTitle.length(), 0);
+//        // 更新加号按钮的标题
+//        addItem.setTitle(addTitle);
 
         // 设置底部导航栏的点击事件监听器
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {

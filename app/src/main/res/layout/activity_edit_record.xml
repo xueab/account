@@ -236,24 +236,6 @@
                 android:inputType="numberDecimal"
                 android:textSize="18sp"/>
 
-            <!-- 时间选择 -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="时间"
-                android:textSize="16sp"
-                android:textStyle="bold"/>
-
-            <Button
-                android:id="@+id/btn_time"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@android:color/transparent"
-                android:gravity="start"
-                android:text="2025-05-19 19:00"
-                android:textColor="@android:color/black"/>
 
             <!-- 备注 -->
             <TextView
@@ -272,6 +254,25 @@
                 android:hint="可选"
                 android:inputType="text"
                 android:maxLines="3"/>
+
+            <!-- 时间选择 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="时间"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+
+            <Button
+                android:id="@+id/btn_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@android:color/transparent"
+                android:gravity="start"
+                android:text="2025-05-19 19:00"
+                android:textColor="@android:color/black"/>
 
 
             <!-- 保存按钮 -->

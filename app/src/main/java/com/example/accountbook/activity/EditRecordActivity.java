@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -227,22 +228,22 @@ public class EditRecordActivity extends AppCompatActivity {
         // 如果选中的分类不在前四个，替换第一个分类为选中的分类
         if (!isSelectedInFirstFour && selectedCategory != null) {
             // 临时存储前四个分类
-            List<Category> firstFour = new ArrayList<>();
-            if (currentCategories.size() > 0) firstFour.add(currentCategories.get(0));
-            if (currentCategories.size() > 1) firstFour.add(currentCategories.get(1));
-            if (currentCategories.size() > 2) firstFour.add(currentCategories.get(2));
-            if (currentCategories.size() > 3) firstFour.add(currentCategories.get(3));
+//            List<Category> firstFour = new ArrayList<>();
+//            if (currentCategories.size() > 0) firstFour.add(currentCategories.get(0));
+//            if (currentCategories.size() > 1) firstFour.add(currentCategories.get(1));
+//            if (currentCategories.size() > 2) firstFour.add(currentCategories.get(2));
+//            if (currentCategories.size() > 3) firstFour.add(currentCategories.get(3));
 
             // 将选中的分类放到第一个位置
             currentCategories.remove(selectedCategory);
             currentCategories.add(0, selectedCategory);
 
-            // 恢复其他三个分类
-            for (Category category : firstFour) {
-                if (category != null && !category.equals(selectedCategory) && currentCategories.size() < 4) {
-                    currentCategories.add(category);
-                }
-            }
+//            // 恢复其他三个分类
+//            for (Category category : firstFour) {
+//                if (category != null && !category.equals(selectedCategory) && currentCategories.size() < 4) {
+//                    currentCategories.add(category);
+//                }
+//            }
         }
 
         // 根据分类数量显示对应的按钮
@@ -480,7 +481,6 @@ public class EditRecordActivity extends AppCompatActivity {
             String[] dateTimeParts = btnTime.getText().toString().split(" ");
             String[] dateParts = dateTimeParts[0].split("-");
             String[] timeParts = dateTimeParts[1].split(":");
-
             calendar.set(Calendar.YEAR, Integer.parseInt(dateParts[0]));
             calendar.set(Calendar.MONTH, Integer.parseInt(dateParts[1]) - 1);
             calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(dateParts[2]));

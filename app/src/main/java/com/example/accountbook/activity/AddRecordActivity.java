@@ -411,7 +411,6 @@ public class AddRecordActivity extends AppCompatActivity {
                 serviceIntent.putExtra("image_uri", selectedImageUri.toString());
                 startService(serviceIntent);
 
-
             } catch (Exception e) {
                 dismissLoadingDialog();
                 Toast.makeText(this, "图片处理失败", Toast.LENGTH_SHORT).show();
@@ -529,14 +528,17 @@ public class AddRecordActivity extends AppCompatActivity {
                     boolean isExpense = rgRecordType.getCheckedRadioButtonId() == R.id.rb_expense;
                     boolean categoryUpdated = false;
                     if (isExpense) {
-                        if (recipientName.contains("火车") || recipientName.contains("车票")) {
+                        if (recipientName.contains("火车") || recipientName.contains("车票") || recipientName.contains("地铁")) {
                             updateCategorySelectionByName("交通");
                             categoryUpdated = true;
                         } else if (recipientName.contains("餐饮") || recipientName.contains("饭店") || recipientName.contains("美食")) {
-                            updateCategorySelectionByName("餐饮");
+                            updateCategorySelectionByName("用餐");
                             categoryUpdated = true;
                         } else if (recipientName.contains("购物") || recipientName.contains("超市") || recipientName.contains("咖啡")) {
-                            updateCategorySelectionByName("日用品");
+                            updateCategorySelectionByName("零食");
+                            categoryUpdated = true;
+                        }else if (recipientName.contains("果业") || recipientName.contains("水果")) {
+                            updateCategorySelectionByName("水果");
                             categoryUpdated = true;
                         }
                     } else {
@@ -548,6 +550,9 @@ public class AddRecordActivity extends AppCompatActivity {
                             categoryUpdated = true;
                         } else if (recipientName.contains("投资")) {
                             updateCategorySelectionByName("投资");
+                            categoryUpdated = true;
+                        }else if (recipientName.contains("转账")) {
+                            updateCategorySelectionByName("红包");
                             categoryUpdated = true;
                         }
                     }
@@ -611,11 +616,7 @@ public class AddRecordActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * 将OCR时间格式转换为标准格式
-     * 输入示例："2002年6月4日 12:53:07"
-     * 输出示例："2002-06-04 12:53"
-     */
+    //将OCR时间格式转换为标准格式
     private String convertTimeFormat(String ocrTime) {
         try {
             // 1. 替换中文日期标识
@@ -702,7 +703,6 @@ public class AddRecordActivity extends AppCompatActivity {
 
         return true;
     }
-
 
     //保存记录
     private void saveRecord() {
